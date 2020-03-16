@@ -2,13 +2,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
-from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, cross_val_score
 from sklearn.impute import SimpleImputer
 
 # Este código sigue las indicaciones del libro Hands on Machine Learning with Scikit Learn and Tensorflow
 
 # DEA
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
+from sklearn.tree import DecisionTreeRegressor
 
 housing=pd.read_csv('housing.csv')
 
@@ -97,4 +100,26 @@ X=sc.fit_transform(X)
 
 # Traning and Evaluating
 
-lin_reg=
+# Linear Regression
+lin_reg=LinearRegression()
+lin_reg.fit(X,housing_labels)
+housing_predictions=lin_reg.predict(X)
+lin_mse=mean_squared_error(housing_labels,housing_predictions)
+lin_rmse=np.sqrt(lin_mse)
+
+print (lin_rmse)
+
+# Decision Tree Regressor
+tree_reg=DecisionTreeRegressor()
+tree_reg.fit(X,housing_labels)
+housing_predictions=tree_reg.predict(X)
+tree_mse=mean_squared_error(housing_labels,housing_predictions)
+tree_rmse=np.sqrt(tree_mse)
+
+print (tree_rmse)
+
+# Cross validation
+
+scores = cross_val_score(tree_reg, X, housing_labels,scoring="neg_mean_squared_error", cv=10)
+tree_rmse_scores = np.sqrt(-scores)
+
