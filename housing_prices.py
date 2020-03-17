@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, cross_val_score
@@ -98,7 +99,7 @@ housing_cat_1hot=encoder.fit_transform(housing_cat_encoded.reshape(-1,1))
 sc=StandardScaler()
 X=sc.fit_transform(X)
 
-# Traning and Evaluating
+# Traning and Evaluating / initially with training set.
 
 # Linear Regression
 lin_reg=LinearRegression()
@@ -116,10 +117,52 @@ housing_predictions=tree_reg.predict(X)
 tree_mse=mean_squared_error(housing_labels,housing_predictions)
 tree_rmse=np.sqrt(tree_mse)
 
-print (tree_rmse)
+print (tree_rmse) # Es 0 porque se trata de un modelo complejo y está overfitting
 
-# Cross validation
+# Cross validation - nos permitirá verificar que hace overfitting
 
 scores = cross_val_score(tree_reg, X, housing_labels,scoring="neg_mean_squared_error", cv=10)
 tree_rmse_scores = np.sqrt(-scores)
+
+def display_scores(scores):
+    print ("Scores:",scores)
+    print ("Mean:",scores.mean())
+    print ("Standard Deviation:",scores.std())
+
+
+print ('Linear Regrsion Crossvalidation Scores')
+display_scores(tree_rmse_scores)
+lin_scores=cross_val_score(lin_reg,X,housing_labels,scoring="neg_mean_squared_error",cv=10)
+lin_rmse_scores=np.sqrt(-lin_scores)
+display_scores(lin_rmse_scores)
+
+print ('Decision Tree Crossvalidation Scores')
+display_scores(tree_rmse_scores)
+
+
+# Random Forest - lo comentamos porque consume mucha CPU
+# forest_reg=RandomForestRegressor()
+# forest_reg.fit(X,housing_labels)
+# housing_predictions=forest_reg.predict(X)
+# forest_mse=mean_squared_error(housing_labels,housing_predictions)
+# forest_rmse=np.sqrt(forest_mse)
+# forest_scores=cross_val_score(forest_reg,X,housing_labels,scoring="neg_mean_squared_error",cv=10)
+# forest_rmse_scores=np.sqrt(-forest_scores)
+# print ('Random Forest Crossvalidation Scores')
+# display_scores(forest_rmse_scores)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
