@@ -10,7 +10,7 @@ from keras.optimizers import RMSprop, Adam
 from keras.preprocessing.image import ImageDataGenerator
 from pandas.plotting import scatter_matrix
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, cross_val_score
@@ -80,26 +80,19 @@ X = sc.fit_transform(X)
 
 # Traning and Test Split
 
-X_train, X_val, Y_train, Y_val = train_test_split(X, housing_labels, test_size=0.2, random_state=2)
+X_train, X_test, Y_train, Y_test = train_test_split(X, housing_labels, test_size=0.2, random_state=2)
+
 
 # Model composition. 9 features, use relu activation for positive linear and random initialization with Xavier. 2 hidden layers
 
 model = Sequential()
-model.add(Dense(30, input_dim=9, activation="relu"))
-model.add(Dense(15, activation="relu"))
+model.add(Dense(500, activation="relu",input_dim=9))
+model.add(Dense(100, activation="relu"))
+model.add(Dense(50, activation="relu"))
 model.add(Dense(1))
-model.compile(optimizer='rmsprop', loss='mse')
+model.compile(optimizer='adam', loss='mean_squared_error',metrics=['mean_squared_error'])
+model.fit(X_train, Y_train, epochs=20)
 
-history = model.fit(X_train, Y_train, epochs=40, validation_data=(X_val, Y_val), verbose=2)
+Y_pred=model.predict(X_test)
 
-pyplot.title('Loss / Mean Squared Error')
-pyplot.plot(history.history['loss'], label='train')
-pyplot.plot(history.history['val_loss'], label='test')
-pyplot.legend()
-pyplot.show()
-
-predict = model.predict(X_val)
-predictions = predict * house_value_sd + house_value_mean
-print("Predictions for test housing prices is: {}".format(predictions))
-
-print("Mean squared error between test_labels and predictions is: {}".format(mean_squared_error(Y_val, predict)))
+print (np.sqrt(mean_squared_error(Y_test,Y_pred)))
